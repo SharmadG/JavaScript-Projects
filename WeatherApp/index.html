@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Weather App</title>
+</head>
+<body>
+
+    <h1>Weather App</h1>
+
+    <div id="weather-info"></div>
+
+    <script>
+        // Replace 'YOUR_API_KEY' with your actual OpenWeatherMap API key
+        const apiKey = 'e6677bdc8a3c34dec672ceb84ca75f42';
+        const apiUrl = 'https://api.openweathermap.org/data/2.5/weather';
+
+        // Function to get weather based on current location
+        function getWeatherByLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(async (position) => {
+                    const { latitude, longitude } = position.coords;
+                    await getWeatherByCoordinates(latitude, longitude);
+                }, (error) => {
+                    console.error('Error getting location:', error);
+                    alert('Error getting your location. Please enter a city manually.');
+                });
+            } else {
+                alert('Geolocation is not supported by your browser. Please enter a city manually.');
+            }
+        }
+
+        // Function to get weather by coordinates
+        async function getWeatherByCoordinates(latitude, longitude) {
+            const url = `${apiUrl}?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric`; // You can change units to 'imperial' for Fahrenheit
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                displayWeather(data);
+            } catch (error) {
+                console.error('Error fetching weather data:', error);
+            }
+        }
+
+        // Function to display weather data
+        function displayWeather(data) {
+            const weatherInfo = document.getElementById('weather-info');
+            
+            if (data.cod === '404') {
+                weatherInfo.textContent = 'City not found';
+            } else {
+                const temperature = data.main.temp;
+                const description = data.weather[0].description;
+
+                weatherInfo.innerHTML = `<p>Temperature: ${temperature}°C</p>`;
+                weatherInfo.innerHTML += `<p>Description: ${description}</p>`;
+            }
+        }
+
+        // Example: Get weather based on current location
+        getWeatherByLocation();
+    </script>
+</body>
+</html>
